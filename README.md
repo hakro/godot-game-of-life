@@ -2,11 +2,21 @@
 
 ## Description
 
-A simple implementation of **Game Of Life**, made in [Godot 3.2.3](https://godotengine.org/)
+A simple implementation of **Game Of Life**, made in [Godot 3.2](https://godotengine.org/)
 
-A single Node2D is used for drawing everything on screen and detect input.
+Try it yourself : [Play Here](https://hakro.github.io/godot-game-of-life/)
+
+**Left click :** Add cells
+
+**Right click :** Remove cells
+
+**SpaceBar :** Start / Stop the Simulation
+
+A simple Node2D is used for drawing everything on screen and detect input.
 
 Everything is made only in **GDScript**
+
+The /docs directory contains the playable version hosted on Github Pages.
 
 ## Tribute
 

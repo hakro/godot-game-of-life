@@ -5,11 +5,16 @@ const YELLOW := Color.yellowgreen
 
 onready var window_width := get_viewport_rect().size.x
 onready var window_height := get_viewport_rect().size.y
+onready var timer : Timer = $NextGenTimer
+onready var stats_label : Label = $StatsLabel
+onready var stats_text : String = stats_label.text
 
 onready var grid_width : int = window_width / CELL_SIZE
 onready var grid_height : int = window_height / CELL_SIZE
 
+var generation := 0
 var active_cells : Array = []
+var is_running : bool = false
 
 func _draw() -> void:
 	for col in range(0, window_width, CELL_SIZE):
@@ -21,6 +26,9 @@ func _draw() -> void:
 	for cell in active_cells:
 		draw_rect(Rect2(cell * CELL_SIZE, Vector2(CELL_SIZE, CELL_SIZE)), YELLOW)
 
+	# Update stats
+	stats_label.text = stats_text % [generation, active_cells.size()]
+
 func _input(event : InputEvent) -> void:
 	if event is InputEventMouse:
 		var click_pos : Vector2 = (event.position / Vector2(CELL_SIZE, CELL_SIZE)).floor()
@@ -30,7 +38,11 @@ func _input(event : InputEvent) -> void:
 			deactivate_cell(click_pos)
 	
 	if event is InputEventKey and event.is_pressed() and event.get_scancode() == KEY_SPACE:
-		next_generation()
+		is_running = not is_running
+		if is_running:
+			timer.start()
+		else:
+			timer.stop()
 
 func activate_cell(pos : Vector2) -> void:
 	if not active_cells.has(pos):
@@ -68,11 +80,7 @@ func get_active_neighbors(pos: Vector2) -> Array:
 			active_neighbors.append(neighbor)
 	return active_neighbors
 
-func next_generation() -> void:
-	var start = OS.get_ticks_msec()
-	print("Total cells : ", grid_height * grid_width)
-	print("Active cells : ", active_cells.size())
-	
+func next_generation() -> void:	
 	var marked_activation : Array = []
 	var marked_deactivation : Array = []
 	for y in range(grid_height):
@@ -82,13 +90,11 @@ func next_generation() -> void:
 				marked_deactivation.append(current_cell)
 			elif not is_active(current_cell) and get_active_neighbors(current_cell).size() == 3:
 				marked_activation.append(current_cell)
-	print("First for : " , OS.get_ticks_msec() - start)
 	for cell in marked_activation:
 		activate_cell(cell)
-	print("Second : " , OS.get_ticks_msec() - start)
 	for cell in marked_deactivation:
 		deactivate_cell(cell)
-	print("Third : " , OS.get_ticks_msec() - start)
+	generation += 1
 
-	print("Total : " , OS.get_ticks_msec() - start)
-	print("--------------------------------------")
+func _on_NextGenTimer_timeout():
+	next_generation()
